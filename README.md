@@ -1,198 +1,310 @@
 # SCRUB Command Center — Environmental Intelligence & Basin Observatory
 
-SCRUB is a high-performance environmental water quality intelligence and autonomous surface robot command center designed for lake observation, reclamation tracking, and in-situ multi-sensor telemetry surveillance.
+> Real-time water quality monitoring dashboard for autonomous surface robots.
+> Connects to **Firebase Realtime Database** live — no backend needed.
 
 ---
 
-## System Architecture
+## ⚡ Quick Start (3 Steps)
 
-```text
-+-----------------------------------------------------------------------------+
-|                                 IOT HARDWARE                                |
-|  [ESP32 / Arduino + Sensors]  --->  [Raspberry Pi / 4G LTE Gateway]        |
-|  - GPS (NEO-6M / Ublox)             - Python Serial/Camera Bridge           |
-|  - Analog pH Probe                  - Video Streaming Server (:5000)        |
-|  - TDS Sensor (ppm)                 - Serial telemetry bridge               |
-|  - Turbidity Sensor (NTU)                                                   |
-|  - DHT22 (Temp & Humidity)                                                  |
-|  - MQ-135 (Air Quality / Gas)                                               |
-+------------------------------------+----------------------------------------+
-                                     |
-                +--------------------+--------------------+
-                |                                         |
-                v (Cloud Sync)                            v (Local HTTP)
-     +-----------------------+                 +-----------------------+
-     |   FIREBASE REALTIME   |                 |    RASPBERRY PI       |
-     |   DATABASE / FIRESTORE|                 |    LOCAL BRIDGE       |
-     |   (REST / SDK Stream) |                 |    (JSON Endpoint)    |
-     +-----------+-----------+                 +-----------+-----------+
-                 |                                         |
-                 +--------------------+--------------------+
-                                      |
-                                      v
-+-----------------------------------------------------------------------------+
-|                          SCRUB WEB COMMAND CENTER                           |
-|                                                                             |
-|  +-----------------------------------------------------------------------+  |
-|  | OpenStreetMap & Satellite Basemap Workspace                           |  |
-|  | - Real Water Body Boundary Polygon Rendering                          |  |
-|  | - Dynamic Uniform Survey Grids Generation                             |  |
-|  | - Live Robot GPS Coordinate Tracking & Heading Compass Marker        |  |
-|  | - Multi-Parameter Heatmap Overlay (TDS, Turbidity, pH, Temp, WQI)     |  |
-|  +-----------------------------------------------------------------------+  |
-|                                                                             |
-|  +-----------------------------------------------------------------------+  |
-|  | Real-Time Surveillance & Analysis Engines                             |  |
-|  | - Live RPi Video Streamer (:5000/video_feed) with POV HUD Overlay     |  |
-|  | - Basin Water Health Analytics & Multi-Lake Comparison Table          |  |
-|  | - Critical Threat & Anomaly Surveillance with 1-Click Hotspot Flight  |  |
-|  | - Area-based OpenStreetMap Geocoding Search (Nominatim API)           |  |
-|  +-----------------------------------------------------------------------+  |
-+-----------------------------------------------------------------------------+
+```bash
+# 1. Clone
+git clone https://github.com/S-Farhan-Hashmi/final_dashboard.git
+cd final_dashboard
+
+# 2. Install dependencies
+npm install
+
+# 3. Run
+npm run dev -- --port 8081
 ```
 
----
+Open **http://localhost:8081** in your browser. That's it.
 
-## Core Capabilities
-
-### 1. Real-Time Cloud Telemetry (Firebase Integration)
-- Connects directly to **Firebase Realtime Database (RTDB)**, **Firestore**, and **Firebase REST API**.
-- Subscribes to real-time telemetry packets and automatically extracts:
-  - **Live GPS coordinates** (`latitude`, `longitude`) to reposition the robot marker on the map in real-time.
-  - **Water & Air quality sensors**: TDS, Turbidity, Analog pH, Ambient Temperature, Humidity, and MQ-135 Gas index.
-  - Automatically identifies whether the GPS position is inside a registered water body and highlights the corresponding grid sector.
-
-### 2. Multi-Parameter Lake Grid Heatmap
-- Visualizes spatial water quality variations across generated survey grids:
-  - **Status Mode**: Cleaned, Active, Untouched survey sectors.
-  - **TDS Mode**: Total Dissolved Solids gradient (Cyan < 250 ppm, Emerald 250-350 ppm, Amber 350-500 ppm, Crimson > 500 ppm).
-  - **Turbidity Mode**: Water clarity gradient (Cyan < 8 NTU, Emerald 8-15 NTU, Amber 15-25 NTU, Crimson > 25 NTU).
-  - **pH Mode**: Acidity/alkalinity scale (Rose < 6.5, Emerald 6.5-7.6, Cyan 7.6-8.5, Purple > 8.5).
-  - **Temp Mode**: Thermal distribution (Cyan < 24°C, Emerald 24-28°C, Amber 28-32°C, Crimson > 32°C).
-  - **WQI Mode**: Overall Water Quality Index (Emerald 80-100, Cyan 60-79, Amber 40-59, Crimson < 40).
-- Includes an on-map interactive parameter selector and scale legend HUD.
-
-### 3. Live Raspberry Pi Camera Video Stream & POV HUD
-- Real-time video player supporting MJPEG camera streams from `http://<pi_ip>:5000/video_feed`.
-- Overlay HUD displaying artificial horizon, compass heading, GPS coordinates, live sensor status, and latency.
-- High-fidelity procedural wave simulation fallback for bench testing when physical camera is offline.
-- 1-click snapshot tool saving video frame and telemetry overlay to PNG.
-
-### 4. Basin Health Analytics & Threat Surveillance
-- **Analytics Engine**: Aggregates lake data to compute mean Basin Health Index (WQI), surveyed hectares, and reclamation percentages against environmental safety standards.
-- **Threat Surveillance**: Continuous anomaly detection for critical turbidity breaches (> 25 NTU), chemical pH imbalances (< 6.4 or > 8.6), and elevated TDS (> 500 ppm) with a 1-click "Locate Hotspot" map flight.
-
-### 5. Maps-Style Geocoding Search & Keyboard Navigation
-- OpenStreetMap Nominatim live geocoding search for jumping to any neighborhood, landmark, or water body.
-- Full keyboard arrow navigation (`ArrowUp`, `ArrowDown`, `ArrowLeft`, `ArrowRight`, `Enter`, `Escape`) across all top bar buttons, modal forms, and search dropdowns.
+> **Firebase is pre-configured.** The dashboard connects to the `scrub-v4` Firebase project
+> out of the box — no `.env` file required. If you want to use your own Firebase project,
+> see [Using Your Own Firebase](#using-your-own-firebase).
 
 ---
 
-## Hardware Telemetry JSON Schema
+## 🗺️ What You'll See
 
-Ensure your Arduino / ESP32 or Raspberry Pi publishes JSON payloads matching this schema to Firebase or the local REST bridge:
+| Feature | Description |
+|---|---|
+| **Live Map** | OpenStreetMap + Satellite via Mapbox — click any real lake to detect its boundary |
+| **Live Stream HUD** | Real-time sensor tiles (TDS · Turbidity · pH · Temp · Humidity · MQ-135) from Firebase |
+| **Firebase Gateway** | Streams `sensorData/current` from Firebase RTDB with `onValue` listener |
+| **Analytics Modal** | Basin Health Index, reclamation %, lake-level WQI aggregations |
+| **Threats Modal** | Anomaly detection — turbidity > 25 NTU, pH out of range, TDS > 500 ppm |
+| **Robot Camera** | MJPEG video stream from Raspberry Pi with POV HUD overlay |
+| **Lake Management** | Register lakes from OSM boundary detection, generate survey grids |
+
+---
+
+## 📡 Live Firebase Pipeline
+
+```
+Raspberry Pi (Python bridge)
+        ↓
+Firebase Realtime Database
+        ↓
+  sensorData/current
+  ├── tds_ppm          → TDS (ppm)
+  ├── turbidity_ntu    → Turbidity (NTU)
+  ├── ph               → pH
+  ├── temperature      → Air Temperature (°C)
+  ├── humidity         → Humidity (%)
+  ├── mq135_ppm        → MQ-135 Gas (ppm)
+  ├── status           → Status string
+  └── timestamp_ms     → Timestamp (ms)
+        ↓
+Firebase RTDB SDK (onValue listener)
+        ↓
+Telemetry Parser (field mapping)
+        ↓
+Live Stream HUD + Telemetry Modal
+```
+
+### Testing the Firebase Connection
+
+1. Click the **⚙️ gear icon** next to the Start button (top-right nav)
+2. The **Firebase Cloud Sync** tab is pre-filled with the project credentials
+3. Click **"Test Firebase"** — you should see live sensor values + raw Firebase node data
+4. Click **Save & Connect**
+5. Click the green **▶ Start** button
+6. The **Live Stream HUD** appears on the map with live sensor values
+
+---
+
+## 🔥 Firebase Configuration
+
+### Default Project (pre-configured, no setup needed)
+
+```js
+const firebaseConfig = {
+  apiKey: "AIzaSyCZcUkgZGlVvZnm-BV4oiO8NZ4F7A8e9rU",
+  authDomain: "scrub-v4.firebaseapp.com",
+  databaseURL: "https://scrub-v4-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "scrub-v4",
+  storageBucket: "scrub-v4.firebasestorage.app",
+  messagingSenderId: "984022165050",
+  appId: "1:984022165050:web:c1c1f232bb985816cab703"
+};
+```
+
+**Telemetry path:** `sensorData/current`
+
+### Firebase Security Rules
+
+Your Firebase RTDB must allow public reads:
 
 ```json
 {
-  "timestamp": 1724061000,
-  "latitude": 12.9250,
-  "longitude": 77.5850,
-  "compass": 180,
-  "tds": 412.5,
-  "turbidity": 18.2,
-  "ph": 7.34,
-  "air_temperature": 31.4,
-  "humidity": 68.2,
-  "mq135": 35.0,
-  "speed": 1.5,
-  "satellites": 9
+  "rules": {
+    ".read": true,
+    ".write": false
+  }
 }
 ```
 
-*Note: The parser is tolerant and automatically recognizes alternate keys such as `lat`, `lng`, `lon`, `temp`, `ntu`, `gas`, and `heading`.*
+Go to **Firebase Console → scrub-v4 → Realtime Database → Rules → Publish**.
 
 ---
 
-## Environment Configuration
+## 🔧 Using Your Own Firebase
 
-Create or update the `.env` file in the root directory:
+### Option A — Via the Settings Modal (no code change needed)
+
+1. Open **⚙️ Gateway Settings** in the dashboard
+2. Switch to **Firebase Cloud Sync**
+3. Fill in your API Key, Database URL, and Telemetry Path
+4. Click **Test Firebase** to verify
+5. Click **Save & Connect**
+
+Settings are saved to `localStorage` and persist across reloads.
+
+### Option B — Environment Variables (for team / CI use)
+
+Copy `.env.example` → `.env` and fill in your values:
+
+```bash
+cp .env.example .env
+```
 
 ```ini
-# Map Configuration
-VITE_LOVABLE_CONNECTOR_MAPBOX_PUBLIC_TOKEN=pk.your_mapbox_public_token_here
-
-# Firebase Cloud Telemetry Configuration
-VITE_FIREBASE_API_KEY=your_firebase_web_api_key_here
-VITE_FIREBASE_DATABASE_URL=https://your-project-id-default-rtdb.firebaseio.com
-VITE_FIREBASE_PROJECT_ID=your-project-id
-VITE_FIREBASE_TELEMETRY_PATH=telemetry
-VITE_FIREBASE_AUTH_DOMAIN=your-project-id.firebaseapp.com
-VITE_FIREBASE_STORAGE_BUCKET=your-project-id.appspot.com
+VITE_FIREBASE_API_KEY=your_key
+VITE_FIREBASE_AUTH_DOMAIN=your-project.firebaseapp.com
+VITE_FIREBASE_DATABASE_URL=https://your-project-default-rtdb.firebaseio.com
+VITE_FIREBASE_PROJECT_ID=your-project
+VITE_FIREBASE_STORAGE_BUCKET=your-project.appspot.com
+VITE_FIREBASE_MESSAGING_SENDER_ID=000000000000
+VITE_FIREBASE_APP_ID=1:000000000000:web:xxxxxxxxxxxx
+VITE_FIREBASE_TELEMETRY_PATH=sensorData/current
 ```
 
-*Credentials can also be configured dynamically in the dashboard via the **Gateway Settings** modal without editing code.*
+Then restart `npm run dev`.
+
+> ⚠️ Never commit `.env` — it is already in `.gitignore`.
 
 ---
 
-## Local Development & Setup
+## 🍓 Raspberry Pi Hardware Bridge (Optional)
 
-### Prerequisites
-- Node.js 18+ or 20+
-- Python 3.8+ (for Raspberry Pi bridge script)
+The Raspberry Pi sends sensor data to Firebase automatically. This script is only needed for **local HTTP mode** (when Firebase is not used):
 
-### 1. Install Frontend Dependencies
 ```bash
-npm install
-```
-
-### 2. Start Web Command Center
-```bash
-npm run dev -- --port 8081
-```
-Open [http://localhost:8081](http://localhost:8081) in your browser.
-
-### 3. Run Raspberry Pi Hardware Bridge (Optional for Local Mode)
-On your Raspberry Pi connected to Arduino / USB camera:
-```bash
+# On the Raspberry Pi
 pip install flask opencv-python pyserial
 python raspberry_pi_bridge.py
 ```
-This runs the HTTP JSON telemetry bridge on port `5000` and serves the MJPEG live video feed at `/video_feed`.
+
+This runs a local HTTP bridge on port `5000`:
+- `GET /telemetry` — JSON sensor packet
+- `GET /video_feed` — MJPEG camera stream
+
+To switch the dashboard to local Pi mode:
+1. Open **⚙️ Gateway Settings → Raspberry Pi Local**
+2. Enter `http://<pi_ip>:5000/telemetry`
+3. Click **Save & Connect**
+4. Click **▶ Start**
 
 ---
 
-## Project Structure
+## 🖥️ System Architecture
 
-```text
-├── raspberry_pi_bridge.py        # Python serial/camera bridge for Raspberry Pi
-├── src/
-│   ├── components/
-│   │   ├── live/
-│   │   │   ├── analytics-modal.tsx       # Basin health metrics & lake ranking table
-│   │   │   ├── clear-lake-modal.tsx      # Lake deletion modal with keyboard navigation
-│   │   │   ├── detail-panel.tsx          # Real-time lake and grid sector telemetry HUD
-│   │   │   ├── live-map.tsx              # Mapbox GL workspace, grid rendering, heatmap layers
-│   │   │   ├── live-stream-hud.tsx       # Real-time telemetry ribbon HUD
-│   │   │   ├── live-telemetry-modal.tsx  # Multi-channel sensor telemetry diagnostics modal
-│   │   │   ├── live-video-panel.tsx      # Robot camera streamer & POV HUD overlay
-│   │   │   ├── location-search-bar.tsx   # Geocoding location search with keyboard arrows
-│   │   │   ├── map-hud.tsx               # Basemap switcher (Map / Satellite)
-│   │   │   ├── pi-settings-modal.tsx     # Firebase Cloud & Pi Gateway configuration modal
-│   │   │   ├── threats-modal.tsx         # Anomaly breach surveillance & 1-click hotspot flight
-│   │   │   └── tools-panel.tsx           # Boundary modification tools
-│   ├── lib/
-│   │   ├── firebase-telemetry-service.ts # Firebase Realtime DB, Firestore, REST stream connector
-│   │   ├── keyboard-nav.ts               # Arrow key navigation hooks for dashboard buttons
-│   │   ├── osm-water-service.ts          # OpenStreetMap shoreline boundary detection
-│   │   ├── robot-telemetry-service.ts    # Universal hardware JSON packet parser & REST client
-│   │   ├── water-analytics.ts            # WQI calculation and standard threshold evaluators
-│   │   └── water-data.ts                 # Lake entities, grid generators, color constants
-│   ├── routes/
-│   │   └── index.tsx                     # Main Command Center Route and primary layout
-└── package.json
 ```
++─────────────────────── IOT HARDWARE ───────────────────────────────────+
+│  ESP32 / Arduino + Sensors  ──→  Raspberry Pi (4G LTE Gateway)         │
+│  - GPS (NEO-6M / Ublox)          - Python Serial Bridge                │
+│  - Analog pH Probe                - Video Streaming Server (:5000)      │
+│  - TDS Sensor (ppm)               - Publishes to Firebase RTDB          │
+│  - Turbidity Sensor (NTU)                                               │
+│  - DHT22 (Temp & Humidity)                                              │
+│  - MQ-135 (Air Quality / Gas)                                           │
++─────────────────────────────────┬──────────────────────────────────────+
+                                   │
+               +───────────────────┴──────────────────+
+               ↓                                       ↓
+   Firebase Realtime Database              Raspberry Pi Local
+   sensorData/current                      :5000/telemetry
+   (real-time onValue listener)            (2s REST polling)
+               └───────────────────┬──────────────────┘
+                                   ↓
++──────────────────── SCRUB WEB COMMAND CENTER ──────────────────────────+
+│  Mapbox GL Map + OSM Water Detection + Survey Grid Heatmaps            │
+│  Live Stream HUD + Robot Marker + Telemetry Modal + Threat Alerts      │
++────────────────────────────────────────────────────────────────────────+
+```
+
+---
+
+## 📦 Hardware Telemetry JSON Schema
+
+The Raspberry Pi publishes this structure to `sensorData/current`:
+
+```json
+{
+  "tds_ppm": 412.5,
+  "turbidity_ntu": 18.2,
+  "ph": 7.34,
+  "temperature": 31.4,
+  "humidity": 68.2,
+  "mq135_ppm": 35.0,
+  "status": "ok",
+  "timestamp_ms": 1724061000000
+}
+```
+
+The parser also accepts legacy field names:
+
+| Legacy field | Firebase field | Dashboard field |
+|---|---|---|
+| `tds` | `tds_ppm` | `sensors.tds` |
+| `turbidity` / `ntu` | `turbidity_ntu` | `sensors.turbidity` |
+| `ph` | `ph` | `sensors.ph` |
+| `air_temperature` / `temp` | `temperature` | `sensors.air_temperature` |
+| `humidity` | `humidity` | `sensors.humidity` |
+| `mq135` / `gas` | `mq135_ppm` | `sensors.mq135` |
+| `timestamp` | `timestamp_ms` | `timestamp` |
+
+**GPS note:** `sensorData/current` does not include GPS. The robot map marker stays at its last known position — no fake coordinates are used.
+
+---
+
+## 📁 Project Structure
+
+```
+scrub-dashboard/
+├── .env.example                          # Copy to .env for custom Firebase config
+├── raspberry_pi_bridge.py               # Python bridge for Raspberry Pi
+└── src/
+    ├── lib/
+    │   ├── firebase-telemetry-service.ts # Firebase RTDB listener + test connection
+    │   ├── robot-telemetry-service.ts    # Universal JSON parser (Firebase + legacy)
+    │   ├── water-analytics.ts            # WQI calculations + IS:10500 thresholds
+    │   ├── water-data.ts                 # Lake entities, grid generators
+    │   ├── osm-water-service.ts          # OpenStreetMap Nominatim geocoding
+    │   └── keyboard-nav.ts              # Arrow-key navigation hook
+    ├── components/
+    │   ├── live/
+    │   │   ├── live-map.tsx              # Mapbox GL workspace + grid heatmap layers
+    │   │   ├── live-stream-hud.tsx       # Real-time 6-channel sensor ribbon HUD
+    │   │   ├── live-telemetry-modal.tsx  # Full sensor diagnostics modal
+    │   │   ├── live-video-panel.tsx      # Robot MJPEG camera + POV overlay
+    │   │   ├── pi-settings-modal.tsx     # Firebase + Pi gateway configuration
+    │   │   ├── analytics-modal.tsx       # Basin health & lake ranking table
+    │   │   ├── threats-modal.tsx         # Anomaly surveillance & hotspot flight
+    │   │   ├── detail-panel.tsx          # Lake & grid sector telemetry HUD
+    │   │   └── location-search-bar.tsx   # OSM geocoding search
+    │   └── combined/
+    │       └── kengeri-monitoring-suite.tsx  # Kengeri lake live monitoring
+    └── routes/
+        ├── index.tsx                     # Main Basin Observatory (primary route)
+        └── ops.tsx                       # Mission Control / Ops view
+```
+
+---
+
+## 🛠️ Troubleshooting
+
+**Firebase says "PERMISSION_DENIED"**
+Set Realtime Database rules to allow reads:
+```json
+{ "rules": { ".read": true, ".write": false } }
+```
+
+**Firebase says "No telemetry found at sensorData/current"**
+- Check the Raspberry Pi bridge is running and publishing to Firebase
+- Verify the path in **Gateway Settings** matches your DB structure
+- Open **Firebase Console → scrub-v4 → Realtime Database** to confirm the node exists
+
+**Map doesn't load / shows blank**
+You need a Mapbox public token. Get one free at [mapbox.com](https://mapbox.com), then add to `.env`:
+```
+VITE_LOVABLE_CONNECTOR_MAPBOX_PUBLIC_TOKEN=pk.your_token_here
+```
+
+**"vite not recognized" on Windows**
+Run with the full npm script:
+```bash
+npm run dev -- --port 8081
+```
+
+**Port already in use**
+```bash
+npm run dev -- --port 3000
+```
+
+---
+
+## Prerequisites
+
+- **Node.js 18+** — [nodejs.org](https://nodejs.org)
+- **npm** (comes with Node)
+- Python 3.8+ (only for Raspberry Pi bridge script)
 
 ---
 
 ## License
+
 MIT License. Built for environmental surveillance and water body conservation.
