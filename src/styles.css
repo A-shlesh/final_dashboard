@@ -1,0 +1,371 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/*
+ * SCRUB // MISSION CONTROL design system.
+ * Dark-only, high contrast, sharp edges, monospace data typography.
+ */
+
+@theme inline {
+  --radius-sm: 0px;
+  --radius-md: 0px;
+  --radius-lg: 0px;
+  --radius-xl: 0px;
+  --radius-2xl: 0px;
+  --radius-3xl: 0px;
+  --radius-4xl: 0px;
+
+  --font-sans: var(--font-body);
+  --font-mono: var(--font-data);
+  --font-display: var(--font-head);
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-ring-offset-background: var(--background);
+
+  --color-panel: var(--panel);
+  --color-panel-border: var(--panel-border);
+  --color-grid-line: var(--grid-line);
+  --color-signal: var(--signal);
+  --color-signal-dim: var(--signal-dim);
+  --color-caution: var(--caution);
+  --color-critical: var(--critical);
+  --color-inert: var(--inert);
+  --color-data: var(--data);
+
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+
+  --color-sidebar: var(--panel);
+  --color-sidebar-foreground: var(--foreground);
+  --color-sidebar-primary: var(--primary);
+  --color-sidebar-primary-foreground: var(--primary-foreground);
+  --color-sidebar-accent: var(--accent);
+  --color-sidebar-accent-foreground: var(--accent-foreground);
+  --color-sidebar-border: var(--panel-border);
+  --color-sidebar-ring: var(--ring);
+}
+
+:root {
+  --radius: 0px;
+  --font-body: "Barlow", ui-sans-serif, system-ui, sans-serif;
+  --font-data: "IBM Plex Mono", ui-monospace, monospace;
+  --font-head: "Barlow Condensed", "Barlow", sans-serif;
+
+  --background: oklch(0.17 0.021 254);
+  --foreground: oklch(0.93 0.012 240);
+
+  --panel: oklch(0.213 0.023 254);
+  --panel-border: oklch(0.3 0.028 253);
+
+  --card: oklch(0.213 0.023 254);
+  --card-foreground: oklch(0.93 0.012 240);
+  --popover: oklch(0.19 0.022 254);
+  --popover-foreground: oklch(0.93 0.012 240);
+
+  --primary: oklch(0.78 0.16 172);
+  --primary-foreground: oklch(0.17 0.021 254);
+  --secondary: oklch(0.26 0.026 253);
+  --secondary-foreground: oklch(0.9 0.012 240);
+  --muted: oklch(0.245 0.024 253);
+  --muted-foreground: oklch(0.66 0.024 250);
+  --accent: oklch(0.29 0.03 253);
+  --accent-foreground: oklch(0.95 0.01 240);
+  --destructive: oklch(0.62 0.22 26);
+  --destructive-foreground: oklch(0.97 0.01 240);
+
+  --border: oklch(0.3 0.028 253);
+  --input: oklch(0.3 0.028 253);
+  --ring: oklch(0.78 0.16 172);
+
+  --grid-line: oklch(0.45 0.05 200 / 35%);
+  --signal: oklch(0.78 0.16 172);
+  --signal-dim: oklch(0.55 0.09 180);
+  --caution: oklch(0.81 0.15 82);
+  --critical: oklch(0.65 0.22 26);
+  --inert: oklch(0.5 0.024 250);
+  --data: oklch(0.88 0.09 195);
+
+  --chart-1: oklch(0.78 0.16 172);
+  --chart-2: oklch(0.81 0.15 82);
+  --chart-3: oklch(0.72 0.13 230);
+  --chart-4: oklch(0.65 0.22 26);
+  --chart-5: oklch(0.66 0.024 250);
+
+  --glow-signal: 0 0 12px oklch(0.78 0.16 172 / 55%);
+  --glow-caution: 0 0 12px oklch(0.81 0.15 82 / 55%);
+  --glow-critical: 0 0 14px oklch(0.65 0.22 26 / 65%);
+}
+
+.dark {
+  color-scheme: dark;
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+
+  html {
+    color-scheme: dark;
+  }
+
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-body);
+    font-feature-settings: "tnum" 1;
+    -webkit-font-smoothing: antialiased;
+  }
+}
+
+@utility panel-surface {
+  background-color: var(--panel);
+  border: 1px solid var(--panel-border);
+}
+
+@utility glass-panel {
+  background-color: color-mix(in oklab, var(--panel) 93%, transparent);
+  backdrop-filter: blur(18px) saturate(140%);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+  border: 1px solid var(--panel-border);
+}
+
+/* ---------- mapbox marker chrome ---------- */
+.lake-marker {
+  position: relative;
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+.lake-marker .core {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 8px currentColor;
+}
+.lake-marker .ring {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  border: 1px solid currentColor;
+  opacity: 0.55;
+  transform: translate(-50%, -50%);
+  animation: pulse-ring 2.6s cubic-bezier(0.4, 0, 0.3, 1) infinite;
+}
+.lake-marker.selected .core {
+  width: 12px;
+  height: 12px;
+  box-shadow: 0 0 16px currentColor;
+}
+@keyframes pulse-ring {
+  0% {
+    width: 9px;
+    height: 9px;
+    opacity: 0.55;
+  }
+  75%,
+  100% {
+    width: 30px;
+    height: 30px;
+    opacity: 0;
+  }
+}
+.node-marker {
+  position: relative;
+  width: 11px;
+  height: 11px;
+  cursor: pointer;
+  animation: node-in 0.28s cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
+}
+.node-marker .n-core {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 5px currentColor;
+  border: 1px solid oklch(1 0 0 / 35%);
+}
+.node-marker .n-ring {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  border: 1px solid currentColor;
+  opacity: 0.4;
+  transform: translate(-50%, -50%);
+}
+.node-marker.selected .n-core {
+  width: 8px;
+  height: 8px;
+  box-shadow: 0 0 10px currentColor;
+}
+.node-marker:hover .n-ring {
+  opacity: 0.85;
+}
+@keyframes node-in {
+  from {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+.mapboxgl-ctrl-attrib {
+  background: color-mix(in oklab, var(--background) 60%, transparent) !important;
+  font-family: var(--font-data);
+  font-size: 9px !important;
+}
+.mapboxgl-ctrl-group {
+  background: var(--panel) !important;
+  border: 1px solid var(--panel-border) !important;
+  border-radius: 0 !important;
+}
+.mapboxgl-ctrl-group button + button {
+  border-top: 1px solid var(--panel-border) !important;
+}
+.mapboxgl-ctrl-group button .mapboxgl-ctrl-icon {
+  filter: invert(1) hue-rotate(180deg);
+}
+.mapboxgl-ctrl-scale {
+  background: color-mix(in oklab, var(--background) 60%, transparent) !important;
+  border-color: var(--panel-border) !important;
+  color: var(--muted-foreground) !important;
+  font-family: var(--font-data);
+}
+
+
+@utility hud-label {
+  font-family: var(--font-data);
+  font-size: 0.625rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--muted-foreground);
+}
+
+@utility scanlines {
+  position: relative;
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background-image: repeating-linear-gradient(
+      to bottom,
+      oklch(1 0 0 / 3.5%) 0px,
+      oklch(1 0 0 / 3.5%) 1px,
+      transparent 1px,
+      transparent 3px
+    );
+    opacity: 0.35;
+  }
+}
+
+@utility glow-signal {
+  box-shadow: var(--glow-signal);
+}
+
+@utility text-glow {
+  text-shadow: 0 0 10px currentColor;
+}
+
+@keyframes scrub-ping {
+  0% {
+    transform: scale(0.6);
+    opacity: 0.9;
+  }
+  100% {
+    transform: scale(2.6);
+    opacity: 0;
+  }
+}
+
+@keyframes scrub-sweep {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes scrub-blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.25;
+  }
+}
+
+@keyframes scrub-dash {
+  to {
+    stroke-dashoffset: -200;
+  }
+}
+
+@utility animate-ping-slow {
+  animation: scrub-ping 2.4s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+@utility animate-sweep {
+  animation: scrub-sweep 4s linear infinite;
+  transform-origin: center;
+}
+
+@utility animate-blink {
+  animation: scrub-blink 1.4s steps(2, end) infinite;
+}
+
+@utility animate-dash {
+  animation: scrub-dash 3s linear infinite;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--panel-border);
+}
