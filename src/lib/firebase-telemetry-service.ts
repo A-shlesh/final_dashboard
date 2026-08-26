@@ -85,10 +85,12 @@ const APP_NAME = "SCRUB_FIREBASE_APP";
 
 export function getFirebaseConfig(): FirebaseConfigState {
   try {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) {
-      const parsed = JSON.parse(saved) as Partial<FirebaseConfigState>;
-      return { ...DEFAULT_FIREBASE_CONFIG, ...parsed };
+    if (typeof window !== "undefined" && typeof localStorage !== "undefined") {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        const parsed = JSON.parse(saved) as Partial<FirebaseConfigState>;
+        return { ...DEFAULT_FIREBASE_CONFIG, ...parsed };
+      }
     }
   } catch (err) {
     console.warn("[scrub firebase] error reading config from localStorage", err);
@@ -100,7 +102,9 @@ export function saveFirebaseConfig(config: Partial<FirebaseConfigState>) {
   try {
     const current = getFirebaseConfig();
     const updated = { ...current, ...config };
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+    if (typeof window !== "undefined" && typeof localStorage !== "undefined") {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+    }
     return updated;
   } catch (err) {
     console.warn("[scrub firebase] error saving config", err);

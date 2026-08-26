@@ -33,7 +33,11 @@ export function PiSettingsModal({
 
   // Active gateway source ("firebase" | "rpi")
   const [gatewaySource, setGatewaySource] = useState<"firebase" | "rpi">(() => {
-    return (localStorage.getItem("scrub_active_gateway_source") as "firebase" | "rpi") || "firebase";
+    try {
+      return (localStorage.getItem("scrub_active_gateway_source") as "firebase" | "rpi") || "firebase";
+    } catch {
+      return "firebase";
+    }
   });
 
   useEffect(() => {

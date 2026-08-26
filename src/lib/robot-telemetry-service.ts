@@ -49,15 +49,20 @@ const DEFAULT_PI_ENDPOINT = "http://localhost:5000/telemetry";
 
 export function getPiEndpoint(): string {
   try {
-    return localStorage.getItem("scrub_pi_endpoint") || DEFAULT_PI_ENDPOINT;
+    if (typeof window !== "undefined" && typeof localStorage !== "undefined") {
+      return localStorage.getItem("scrub_pi_endpoint") || DEFAULT_PI_ENDPOINT;
+    }
   } catch {
-    return DEFAULT_PI_ENDPOINT;
+    /* fallback */
   }
+  return DEFAULT_PI_ENDPOINT;
 }
 
 export function savePiEndpoint(url: string) {
   try {
-    localStorage.setItem("scrub_pi_endpoint", url.trim());
+    if (typeof window !== "undefined" && typeof localStorage !== "undefined") {
+      localStorage.setItem("scrub_pi_endpoint", url.trim());
+    }
   } catch {
     /* noop */
   }

@@ -23,8 +23,11 @@ const TOKEN =
   (import.meta.env["VITE_LOVABLE_CONNECTOR_MAPBOX_PUBLIC_TOKEN"] as string) ||
   (import.meta.env["VITE_MAPBOX_TOKEN"] as string) ||
   (import.meta.env["VITE_MAPBOX_ACCESS_TOKEN"] as string) ||
-  (import.meta.env["VITE_MAP_TOKEN"] as string) ||
-  "";
+  (import.meta.env["VITE_MAP_TOKEN"] as string);
+
+if (!TOKEN) {
+  throw new Error("Missing Mapbox token");
+}
 
 const ENV_MAP_STYLE =
   (import.meta.env["VITE_MAP_STYLE_URL"] as string) ||

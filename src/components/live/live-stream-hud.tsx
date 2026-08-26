@@ -60,8 +60,13 @@ export function LiveStreamHud({
                     : "bg-amber-500/10 text-amber-400 border border-amber-500/20"
                 }`}
               >
-                {isStreaming ? "0.5 Hz · 2s Lag" : "Permanent Lock"}
+                {isStreaming ? "0.5 Hz · Live" : "Permanent Lock"}
               </span>
+              {packet?.timestamp && (
+                <span className="font-mono text-[10px] text-muted-foreground ml-1">
+                  {new Date(packet.timestamp).toLocaleTimeString()}
+                </span>
+              )}
             </div>
           </div>
         </div>
